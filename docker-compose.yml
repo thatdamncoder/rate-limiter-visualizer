@@ -1,0 +1,27 @@
+# Single-instance setup: one app instance backed by Redis.
+#   docker compose up --build
+# Backend on http://localhost:8080
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: rl2-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: ./rate-limiter
+    container_name: rl2-app
+    environment:
+      RL_PROFILE: redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy

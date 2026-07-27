@@ -1,5 +1,11 @@
 # 🚦 Rate Limiter Visualizer
 
+> **🆕 Now distributed:** rate-limit state and active config live in **Redis**, and the
+> service is **Dockerized**. The limit is enforced globally across multiple app instances
+> behind a load balancer. See **[REDIS_DOCKER_UPGRADE.md](REDIS_DOCKER_UPGRADE.md)** —
+> run it with `docker compose up --build`.
+
+
 Rate limiting is a **fundamental backend system design concept** used to control how frequently a client can access an API or service.
 This project **implements real rate limiting algorithms on the backend** and **visualizes their behavior in real time on the frontend**, making abstract concepts intuitive and easy to reason about.
 
