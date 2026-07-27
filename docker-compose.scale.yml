@@ -1,0 +1,33 @@
+# Distributed proof: N app instances share ONE Redis, behind nginx.
+#   docker compose -f docker-compose.scale.yml up --build --scale app=3
+# All traffic hits http://localhost:8080; nginx round-robins across the app
+# containers. State AND active config live in Redis, so the limit is enforced
+# GLOBALLY no matter which instance serves a given request.
+services:
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: ./rate-limiter
+    # no host port mapping so the service can be scaled freely
+    environment:
+      RL_PROFILE: redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
